@@ -19,6 +19,7 @@ import CreatePost from "./pages/CreatePost";
 import EditPost from "./pages/EditPost";
 import PostDetail from "./pages/PostDetail";
 import Login from "./pages/Login";
+import Register from "./pages/public/Register";
 
 // Public Pages
 import Home from "./pages/public/Home";
@@ -32,7 +33,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuth();
 
   if (!isAuthenticated) {
-    return <Navigate to="/admin/login" replace />;
+    return <Navigate to="/login" replace />;
   }
 
   return <>{children}</>;
@@ -53,8 +54,11 @@ function App() {
               <Route path="about" element={<About />} />
             </Route>
 
+            {/* Auth Routes */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+
             {/* Admin Routes */}
-            <Route path="/admin/login" element={<Login />} />
             <Route
               path="/admin"
               element={
@@ -68,7 +72,7 @@ function App() {
               <Route path="posts/new" element={<CreatePost />} />
               <Route path="posts/:id" element={<PostDetail />} />
               <Route path="posts/:id/edit" element={<EditPost />} />
-              <Route path="*" element={<Navigate to="/admin" replace />} />
+              <Route path="*" element={<Navigate to="/admin\" replace />} />
             </Route>
           </Routes>
         </Router>

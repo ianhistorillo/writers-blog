@@ -12,6 +12,8 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
 
+  console.log(user);
+
   const handleLogout = () => {
     logout();
     navigate('/login');

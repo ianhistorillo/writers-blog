@@ -1,48 +1,22 @@
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  avatar?: string;
-  role: 'admin' | 'editor' | 'author';
-}
+import { Database } from './supabase';
 
-export interface Category {
-  id: string;
-  name: string;
-  slug: string;
-}
-
-export interface Tag {
-  id: string;
-  name: string;
-  slug: string;
-}
-
-export interface Post {
-  id: string;
-  title: string;
-  slug: string;
-  content: string;
-  excerpt: string;
-  coverImage?: string;
+export type Tables = Database['public']['Tables'];
+export type Post = Tables['posts']['Row'] & {
   author: User;
   categories: Category[];
   tags: Tag[];
-  createdAt: string;
-  updatedAt: string;
-  publishedAt?: string;
-  status: 'draft' | 'published';
-  featured: boolean;
-}
+};
+export type Category = Tables['categories']['Row'];
+export type Tag = Tables['tags']['Row'];
+export type Comment = Tables['comments']['Row'];
 
-export interface Comment {
+export interface User {
   id: string;
-  postId: string;
-  author: string;
   email: string;
-  content: string;
-  createdAt: string;
-  approved: boolean;
+  user_metadata: {
+    name: string;
+    avatar_url?: string;
+  };
 }
 
 export interface Stats {
