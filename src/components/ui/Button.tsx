@@ -5,6 +5,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   size?: 'sm' | 'md' | 'lg';
   isLoading?: boolean;
   fullWidth?: boolean;
+  as?: 'button' | 'span';
 }
 
 const Button: React.FC<ButtonProps> = ({ 
@@ -15,9 +16,10 @@ const Button: React.FC<ButtonProps> = ({
   fullWidth = false,
   className = '',
   disabled,
+  as = 'button',
   ...props 
 }) => {
-  const baseClasses = 'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none';
+  const baseClasses = 'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none cursor-pointer';
   
   const variantClasses = {
     primary: 'bg-blue-800 text-white hover:bg-blue-900 focus-visible:ring-blue-500',
@@ -36,8 +38,10 @@ const Button: React.FC<ButtonProps> = ({
   
   const widthClass = fullWidth ? 'w-full' : '';
   
+  const Component = as;
+  
   return (
-    <button
+    <Component
       className={`
         ${baseClasses}
         ${variantClasses[variant]}
@@ -52,7 +56,7 @@ const Button: React.FC<ButtonProps> = ({
         <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></span>
       ) : null}
       {children}
-    </button>
+    </Component>
   );
 };
 

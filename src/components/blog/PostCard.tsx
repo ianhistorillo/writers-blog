@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Edit, Trash2, Star, Calendar, Eye } from 'lucide-react';
+import { Edit, Trash2, Star, Calendar } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { Post } from '../../types';
 import Card, { CardContent } from '../ui/Card';
@@ -13,7 +13,7 @@ interface PostCardProps {
 }
 
 const PostCard: React.FC<PostCardProps> = ({ post, onDelete, onToggleFeatured }) => {
-  const { id, title, excerpt, coverImage, status, featured, publishedAt, updatedAt } = post;
+  const { id, title, excerpt, cover_image, status, featured, published_at, updated_at } = post;
 
   const handleDelete = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -31,11 +31,11 @@ const PostCard: React.FC<PostCardProps> = ({ post, onDelete, onToggleFeatured })
 
   return (
     <Card className="h-full transition-all duration-200 hover:shadow-md">
-      <Link to={`/posts/${id}`} className="block h-full">
-        {coverImage && (
+      <Link to={`/admin/posts/${id}`} className="block h-full">
+        {cover_image && (
           <div className="relative h-48 overflow-hidden">
             <img 
-              src={coverImage} 
+              src={cover_image} 
               alt={title} 
               className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
             />
@@ -54,8 +54,8 @@ const PostCard: React.FC<PostCardProps> = ({ post, onDelete, onToggleFeatured })
             <Calendar className="h-3 w-3 mr-1" />
             <span>
               {status === 'published' 
-                ? `Published ${formatDistanceToNow(new Date(publishedAt || ''), { addSuffix: true })}` 
-                : `Updated ${formatDistanceToNow(new Date(updatedAt), { addSuffix: true })}`}
+                ? `Published ${formatDistanceToNow(new Date(published_at || ''), { addSuffix: true })}` 
+                : `Updated ${formatDistanceToNow(new Date(updated_at), { addSuffix: true })}`}
             </span>
           </div>
           
@@ -79,7 +79,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, onDelete, onToggleFeatured })
                 <Star className="h-4 w-4" fill={featured ? 'currentColor' : 'none'} />
               </button>
               <Link 
-                to={`/posts/${id}/edit`}
+                to={`/admin/posts/${id}/edit`}
                 className="p-1 rounded-full text-gray-400 hover:text-blue-500 hover:bg-gray-100"
                 aria-label="Edit post"
                 onClick={(e) => e.stopPropagation()}

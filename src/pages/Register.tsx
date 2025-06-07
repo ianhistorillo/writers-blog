@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { UserPlus } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
-import Input from "../../components/ui/Input";
-import Button from '../../components/ui/Button';
+import { useAuth } from '../context/AuthContext';
+import Input from '../components/ui/Input';
+import Button from '../components/ui/Button';
 
 const Register: React.FC = () => {
   const { signup } = useAuth();
   const navigate = useNavigate();
-
+  
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -29,16 +29,23 @@ const Register: React.FC = () => {
       setError('Passwords do not match');
       return;
     }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters long');
+      return;
+    }
     
     setIsLoading(true);
     
     try {
-      const { error } = await signup(name, email, password);
+      const { error } = await signup(email, password, name);
       
       if (error) {
         throw error;
       }
       
+      // Show success message and redirect to login
+      alert('Account created successfully! Please check your email to verify your account, then login.');
       navigate('/login');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create account');
@@ -75,17 +82,18 @@ const Register: React.FC = () => {
           )}
           
           <form className="space-y-6" onSubmit={handleSubmit}>
-
-             <Input
-              label="Name"
+            <Input
+              label="Full Name"
               id="name"
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Your Name"
+              placeholder="Your full name"
+              autoComplete="name"
               fullWidth
+              required
             />
-
+            
             <Input
               label="Email address"
               id="email"
@@ -95,6 +103,7 @@ const Register: React.FC = () => {
               placeholder="youremail@example.com"
               autoComplete="email"
               fullWidth
+              required
             />
             
             <Input
@@ -106,6 +115,8 @@ const Register: React.FC = () => {
               placeholder="••••••••"
               autoComplete="new-password"
               fullWidth
+              required
+              helperText="Must be at least 6 characters long"
             />
             
             <Input
@@ -117,6 +128,7 @@ const Register: React.FC = () => {
               placeholder="••••••••"
               autoComplete="new-password"
               fullWidth
+              required
             />
             
             <Button

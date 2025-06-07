@@ -9,15 +9,16 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, profile, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
-
-  console.log(user);
 
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
+
+  const displayName = profile?.name || 'Guest';
+  const userInitial = displayName.charAt(0).toUpperCase();
 
   return (
     <header className="bg-white border-b border-gray-200 fixed left-0 right-0 top-0 z-30 h-16">
@@ -55,17 +56,17 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
           {isAuthenticated ? (
             <div className="relative ml-2 group">
               <button className="flex items-center">
-                {user?.avatar ? (
-                  <img src={user.avatar} alt={user.name} className="h-8 w-8 rounded-full" />
+                {profile?.avatar_url ? (
+                  <img src={profile.avatar_url} alt={displayName} className="h-8 w-8 rounded-full" />
                 ) : (
                   <div className="h-8 w-8 rounded-full bg-blue-800 flex items-center justify-center text-white">
-                    {user?.name.charAt(0)}
+                    {userInitial}
                   </div>
                 )}
               </button>
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 hidden group-hover:block border border-gray-200">
                 <div className="px-4 py-2 text-sm text-gray-700 border-b border-gray-200">
-                  <p className="font-medium">{user?.name}</p>
+                  <p className="font-medium">{displayName}</p>
                   <p className="text-gray-500 text-xs">{user?.email}</p>
                 </div>
                 <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center">

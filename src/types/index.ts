@@ -13,10 +13,9 @@ export type Comment = Tables['comments']['Row'];
 export interface User {
   id: string;
   email: string;
-  user_metadata: {
-    name: string;
-    avatar_url?: string;
-  };
+  name: string;
+  avatar?: string;
+  role?: string;
 }
 
 export interface Stats {

@@ -14,8 +14,8 @@ const Home: React.FC = () => {
     .filter((post) => post.status === "published")
     .sort(
       (a, b) =>
-        new Date(b.publishedAt || "").getTime() -
-        new Date(a.publishedAt || "").getTime()
+        new Date(b.published_at || "").getTime() -
+        new Date(a.published_at || "").getTime()
     )
     .slice(0, 6);
 
@@ -72,7 +72,7 @@ const Home: React.FC = () => {
                   <span>{post.author.name}</span>
                   <span className="mx-2">•</span>
                   <span>
-                    {formatDistanceToNow(new Date(post.publishedAt || ""), {
+                    {formatDistanceToNow(new Date(post.published_at || ""), {
                       addSuffix: true,
                     })}
                   </span>
@@ -119,7 +119,7 @@ const Home: React.FC = () => {
                     <span>{post.author.name}</span>
                     <span className="mx-2">•</span>
                     <span>
-                      {formatDistanceToNow(new Date(post.publishedAt || ""), {
+                      {formatDistanceToNow(new Date(post.published_at || ""), {
                         addSuffix: true,
                       })}
                     </span>

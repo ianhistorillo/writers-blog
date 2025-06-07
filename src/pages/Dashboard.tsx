@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FileText, MessageSquare, BarChart3, Eye, Clock, Tag, Star } from 'lucide-react';
+import { FileText, MessageSquare, Clock, Tag, Star } from 'lucide-react';
 import { useBlog } from '../context/BlogContext';
 import Card, { CardContent, CardHeader } from '../components/ui/Card';
 import Button from '../components/ui/Button';
@@ -11,17 +11,17 @@ const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   
   const handleNewPost = () => {
-    navigate('/posts/new');
+    navigate('/admin/posts/new');
   };
   
   const recentPosts = [...posts].sort((a, b) => 
-    new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+    new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
   ).slice(0, 3);
   
   const featuredPosts = posts.filter(post => post.featured);
   
-  const handleToggleFeatured = (post: any) => {
-    updatePost({
+  const handleToggleFeatured = async (post: any) => {
+    await updatePost({
       ...post,
       featured: !post.featured
     });
@@ -96,7 +96,7 @@ const Dashboard: React.FC = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => navigate('/posts')}
+                onClick={() => navigate('/admin/posts')}
               >
                 View All
               </Button>
@@ -107,7 +107,7 @@ const Dashboard: React.FC = () => {
               {recentPosts.map(post => (
                 <div key={post.id} className="border-b border-gray-200 pb-4 last:border-0 last:pb-0">
                   <div 
-                    onClick={() => navigate(`/posts/${post.id}`)}
+                    onClick={() => navigate(`/admin/posts/${post.id}`)}
                     className="block hover:bg-gray-50 -mx-4 px-4 py-2 rounded-md transition-colors cursor-pointer"
                   >
                     <div className="flex justify-between items-start">
@@ -116,7 +116,7 @@ const Dashboard: React.FC = () => {
                         <p className="text-sm text-gray-500 mt-1 line-clamp-2">{post.excerpt}</p>
                         <div className="flex items-center mt-2 text-xs text-gray-500">
                           <Clock className="h-3 w-3 mr-1" />
-                          <span>Updated {new Date(post.updatedAt).toLocaleDateString()}</span>
+                          <span>Updated {new Date(post.updated_at).toLocaleDateString()}</span>
                           <span className="mx-2">•</span>
                           <Tag className="h-3 w-3 mr-1" />
                           <span>{post.categories.map(c => c.name).join(', ')}</span>
@@ -150,12 +150,11 @@ const Dashboard: React.FC = () => {
                 featuredPosts.map(post => (
                   <div key={post.id} className="border border-gray-200 rounded-md p-3 hover:bg-gray-50 transition-colors">
                     <div 
-                      onClick={() => navigate(`/posts/${post.id}`)}
+                      onClick={() => navigate(`/admin/posts/${post.id}`)}
                       className="block cursor-pointer"
                     >
                       <h3 className="text-sm font-medium text-gray-900">{post.title}</h3>
                       <div className="flex items-center mt-2 text-xs text-gray-500">
-                        <Eye className="h-3 w-3 mr-1" />
                         <span>Views: {Math.floor(Math.random() * 1000)}</span>
                       </div>
                     </div>

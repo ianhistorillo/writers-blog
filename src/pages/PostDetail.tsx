@@ -4,7 +4,7 @@ import { Edit, Trash2, ArrowLeft, Clock, User, Calendar, Tag, MessageSquare } fr
 import { formatDistanceToNow } from 'date-fns';
 import { useBlog } from '../context/BlogContext';
 import Button from '../components/ui/Button';
-import Card, { CardContent, CardHeader, CardFooter } from '../components/ui/Card';
+import Card, { CardContent, CardHeader } from '../components/ui/Card';
 import Badge from '../components/ui/Badge';
 
 const PostDetail: React.FC = () => {
@@ -20,7 +20,7 @@ const PostDetail: React.FC = () => {
       <div className="py-12 text-center">
         <p className="text-red-500 mb-4">Post not found</p>
         <button 
-          onClick={() => navigate('/posts')}
+          onClick={() => navigate('/admin/posts')}
           className="text-blue-700 hover:text-blue-900"
         >
           Back to Posts
@@ -29,10 +29,10 @@ const PostDetail: React.FC = () => {
     );
   }
   
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete this post?')) {
-      deletePost(post.id);
-      navigate('/posts');
+      await deletePost(post.id);
+      navigate('/admin/posts');
     }
   };
   
@@ -42,8 +42,7 @@ const PostDetail: React.FC = () => {
         <Button
           variant="ghost"
           size="sm"
-          as={Link}
-          to="/posts"
+          onClick={() => navigate('/admin/posts')}
           className="text-gray-600"
         >
           <ArrowLeft className="h-4 w-4 mr-1" />
@@ -54,8 +53,7 @@ const PostDetail: React.FC = () => {
           <Button
             variant="secondary"
             size="sm"
-            as={Link}
-            to={`/posts/${post.id}/edit`}
+            onClick={() => navigate(`/admin/posts/${post.id}/edit`)}
           >
             <Edit className="h-4 w-4 mr-1" />
             Edit
@@ -90,10 +88,10 @@ const PostDetail: React.FC = () => {
           </div>
         </CardHeader>
         <CardContent>
-          {post.coverImage && (
+          {post.cover_image && (
             <div className="mb-6">
               <img 
-                src={post.coverImage} 
+                src={post.cover_image} 
                 alt={post.title} 
                 className="w-full h-64 object-cover rounded-lg"
               />
@@ -109,8 +107,8 @@ const PostDetail: React.FC = () => {
               <Calendar className="h-4 w-4 mr-1" />
               <span>
                 {post.status === 'published' 
-                  ? `Published ${formatDistanceToNow(new Date(post.publishedAt || ''), { addSuffix: true })}` 
-                  : `Last updated ${formatDistanceToNow(new Date(post.updatedAt), { addSuffix: true })}`}
+                  ? `Published ${formatDistanceToNow(new Date(post.published_at || ''), { addSuffix: true })}` 
+                  : `Last updated ${formatDistanceToNow(new Date(post.updated_at), { addSuffix: true })}`}
               </span>
             </div>
             {post.categories.length > 0 && (
@@ -161,15 +159,15 @@ const PostDetail: React.FC = () => {
                   <div className="flex items-start">
                     <div className="mr-3 mt-0.5">
                       <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
-                        {comment.author.charAt(0).toUpperCase()}
+                        U
                       </div>
                     </div>
                     <div>
                       <div className="flex items-center">
-                        <h3 className="font-medium text-gray-900">{comment.author}</h3>
+                        <h3 className="font-medium text-gray-900">Anonymous User</h3>
                         <span className="mx-2 text-gray-300">•</span>
                         <span className="text-sm text-gray-500">
-                          {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
+                          {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
                         </span>
                       </div>
                       <p className="mt-1 text-gray-600">{comment.content}</p>

@@ -8,50 +8,53 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
-  const { user } = useAuth();
+  const { profile } = useAuth();
   
   const menuItems = [
     { 
       title: 'Dashboard', 
       icon: <Home className="h-5 w-5" />, 
-      path: '/' 
+      path: '/admin' 
     },
     { 
       title: 'Posts', 
       icon: <FileText className="h-5 w-5" />, 
-      path: '/posts' 
+      path: '/admin/posts' 
     },
     { 
       title: 'Categories', 
       icon: <Tag className="h-5 w-5" />, 
-      path: '/categories' 
+      path: '/admin/categories' 
     },
     { 
       title: 'Comments', 
       icon: <MessageSquare className="h-5 w-5" />, 
-      path: '/comments' 
+      path: '/admin/comments' 
     },
     { 
       title: 'Media', 
       icon: <Image className="h-5 w-5" />, 
-      path: '/media' 
+      path: '/admin/media' 
     },
     { 
       title: 'Analytics', 
       icon: <LineChart className="h-5 w-5" />, 
-      path: '/analytics' 
+      path: '/admin/analytics' 
     },
     { 
       title: 'Users', 
       icon: <Users className="h-5 w-5" />, 
-      path: '/users' 
+      path: '/admin/users' 
     },
     { 
       title: 'Settings', 
       icon: <Settings className="h-5 w-5" />, 
-      path: '/settings' 
+      path: '/admin/settings' 
     },
   ];
+
+  const displayName = profile?.name || 'Guest';
+  const userInitial = displayName.charAt(0).toUpperCase();
 
   return (
     <div 
@@ -66,16 +69,16 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
 
       <div className="mt-6 px-4 py-2">
         <div className="flex items-center space-x-3 mb-6">
-          {user?.avatar ? (
-            <img src={user.avatar} alt={user.name} className="h-10 w-10 rounded-full" />
+          {profile?.avatar_url ? (
+            <img src={profile.avatar_url} alt={displayName} className="h-10 w-10 rounded-full" />
           ) : (
             <div className="h-10 w-10 rounded-full bg-blue-800 flex items-center justify-center text-white">
-              {user?.name.charAt(0) || 'G'}
+              {userInitial}
             </div>
           )}
           <div>
-            <h3 className="font-medium text-gray-900">{user?.name || 'Guest'}</h3>
-            <p className="text-xs text-gray-500">{user?.role || 'Not logged in'}</p>
+            <h3 className="font-medium text-gray-900">{displayName}</h3>
+            <p className="text-xs text-gray-500">{profile?.role || 'Author'}</p>
           </div>
         </div>
 

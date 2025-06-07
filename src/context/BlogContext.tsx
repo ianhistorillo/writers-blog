@@ -9,12 +9,12 @@ interface BlogContextType {
   tags: Tag[];
   comments: Comment[];
   stats: Stats;
-  addPost: (post: Omit<Tables['posts']['Insert'], 'id' | 'author_id'>) => Promise<Post | null>;
+  addPost: (post: Omit<Tables['posts']['Insert'], 'id' | 'author_id'> & { categories: Category[]; tags: Tag[] }) => Promise<Post | null>;
   updatePost: (post: Post) => Promise<Post | null>;
   deletePost: (id: string) => Promise<void>;
   addCategory: (category: Omit<Category, 'id'>) => Promise<Category | null>;
   addTag: (tag: Omit<Tag, 'id'>) => Promise<Tag | null>;
-  getPostById: (id: string) => Promise<Post | null>;
+  getPostById: (id: string) => Post | null;
   getPostsByCategory: (categoryId: string) => Post[];
   getPostsByTag: (tagId: string) => Post[];
   getPostsByStatus: (status: 'draft' | 'published') => Post[];
@@ -28,7 +28,7 @@ interface BlogContextType {
 const BlogContext = createContext<BlogContextType | undefined>(undefined);
 
 export const BlogProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [posts, setPosts] = useState<Post[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
@@ -49,14 +49,14 @@ export const BlogProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       try {
         setIsLoading(true);
         
-        // Fetch posts with authors
+        // Fetch posts with relationships
         const { data: postsData, error: postsError } = await supabase
           .from('posts')
           .select(`
             *,
-            author:author_id(id, email, user_metadata),
             categories:post_categories(category:categories(*)),
-            tags:post_tags(tag:tags(*))
+            tags:post_tags(tag:tags(*)),
+            author:user_profiles(*)
           `);
 
         if (postsError) throw postsError;
@@ -65,10 +65,10 @@ export const BlogProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const transformedPosts = postsData.map(post => ({
           ...post,
           author: {
-            id: post.author.id,
-            email: post.author.email,
-            name: post.author.user_metadata?.name || 'Anonymous',
-            avatar: post.author.user_metadata?.avatar_url
+            id: post.author_id,
+            email: post.author?.email || 'unknown@example.com',
+            name: post.author?.name || 'Anonymous Author',
+            avatar: post.author?.avatar_url
           },
           categories: post.categories.map((c: any) => c.category),
           tags: post.tags.map((t: any) => t.tag)
@@ -117,53 +117,56 @@ export const BlogProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
 
     fetchData();
-  }, []);
+  }, [user]);
 
-  const addPost = async (postData: Omit<Tables['posts']['Insert'], 'id' | 'author_id'>) => {
+  const addPost = async (postData: Omit<Tables['posts']['Insert'], 'id' | 'author_id'> & { categories: Category[]; tags: Tag[] }) => {
     if (!user) return null;
 
     try {
+      const { categories: postCategories, tags: postTags, ...postFields } = postData;
+      
       const { data, error } = await supabase
         .from('posts')
-        .insert([{ ...postData, author_id: user.id }])
+        .insert([{ ...postFields, author_id: user.id }])
         .select()
         .single();
 
       if (error) throw error;
 
       // Add categories and tags
-      if (postData.categories?.length) {
+      if (postCategories?.length) {
         await supabase
           .from('post_categories')
-          .insert(postData.categories.map(cat => ({
+          .insert(postCategories.map(cat => ({
             post_id: data.id,
             category_id: cat.id
           })));
       }
 
-      if (postData.tags?.length) {
+      if (postTags?.length) {
         await supabase
           .from('post_tags')
-          .insert(postData.tags.map(tag => ({
+          .insert(postTags.map(tag => ({
             post_id: data.id,
             tag_id: tag.id
           })));
       }
 
-      // Fetch the complete post with relationships
-      const { data: post } = await supabase
-        .from('posts')
-        .select(`
-          *,
-          author:author_id(id, email, user_metadata),
-          categories:post_categories(category:categories(*)),
-          tags:post_tags(tag:tags(*))
-        `)
-        .eq('id', data.id)
-        .single();
+      // Create complete post object
+      const completePost = {
+        ...data,
+        author: {
+          id: user.id,
+          email: user.email || 'unknown@example.com',
+          name: profile?.name || 'Anonymous',
+          avatar: profile?.avatar_url
+        },
+        categories: postCategories,
+        tags: postTags
+      };
 
-      setPosts(prev => [...prev, post]);
-      return post;
+      setPosts(prev => [...prev, completePost]);
+      return completePost;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create post');
       return null;
@@ -176,7 +179,17 @@ export const BlogProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     try {
       const { data, error } = await supabase
         .from('posts')
-        .update(post)
+        .update({
+          title: post.title,
+          slug: post.slug,
+          content: post.content,
+          excerpt: post.excerpt,
+          cover_image: post.cover_image,
+          status: post.status,
+          featured: post.featured,
+          published_at: post.published_at,
+          updated_at: new Date().toISOString()
+        })
         .eq('id', post.id)
         .select()
         .single();
@@ -213,8 +226,8 @@ export const BlogProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           })));
       }
 
-      setPosts(prev => prev.map(p => p.id === post.id ? { ...data, ...post } : p));
-      return data;
+      setPosts(prev => prev.map(p => p.id === post.id ? { ...post, ...data } : p));
+      return { ...post, ...data };
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update post');
       return null;
@@ -272,25 +285,8 @@ export const BlogProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const getPostById = async (id: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('posts')
-        .select(`
-          *,
-          author:author_id(id, email, user_metadata),
-          categories:post_categories(category:categories(*)),
-          tags:post_tags(tag:tags(*))
-        `)
-        .eq('id', id)
-        .single();
-
-      if (error) throw error;
-      return data;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch post');
-      return null;
-    }
+  const getPostById = (id: string) => {
+    return posts.find(post => post.id === id) || null;
   };
 
   const getPostsByCategory = (categoryId: string) => {

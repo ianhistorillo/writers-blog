@@ -2,19 +2,20 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useBlog } from '../context/BlogContext';
 import PostForm from '../components/blog/PostForm';
-import { Post } from '../types';
 
 const CreatePost: React.FC = () => {
   const { addPost } = useBlog();
   const navigate = useNavigate();
   
-  const handleSubmit = (postData: Omit<Post, 'id'>) => {
+  const handleSubmit = async (postData: any) => {
     try {
-      const newPost = addPost(postData);
-      navigate(`/posts/${newPost.id}`);
+      const newPost = await addPost(postData);
+      if (newPost) {
+        navigate(`/admin/posts/${newPost.id}`);
+      }
     } catch (error) {
+      console.log(error);
       console.error('Error creating post:', error);
-      // Handle error appropriately
     }
   };
   

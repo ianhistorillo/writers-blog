@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Plus, Filter, Search } from 'lucide-react';
 import { useBlog } from '../context/BlogContext';
 import Button from '../components/ui/Button';
@@ -16,11 +16,11 @@ const PostsPage: React.FC = () => {
   const [showFilters, setShowFilters] = useState(false);
   
   const handleNewPost = () => {
-    navigate('/posts/new');
+    navigate('/admin/posts/new');
   };
   
-  const handleToggleFeatured = (post: any) => {
-    updatePost({
+  const handleToggleFeatured = async (post: any) => {
+    await updatePost({
       ...post,
       featured: !post.featured
     });
@@ -39,7 +39,7 @@ const PostsPage: React.FC = () => {
   });
   
   const sortedPosts = [...filteredPosts].sort((a, b) => 
-    new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+    new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
   );
   
   return (

@@ -15,7 +15,7 @@ const EditPost: React.FC = () => {
       <div className="py-12 text-center">
         <p className="text-red-500 mb-4">Post not found</p>
         <button 
-          onClick={() => navigate('/posts')}
+          onClick={() => navigate('/admin/posts')}
           className="text-blue-700 hover:text-blue-900"
         >
           Back to Posts
@@ -24,9 +24,13 @@ const EditPost: React.FC = () => {
     );
   }
   
-  const handleSubmit = (postData: any) => {
-    updatePost(postData);
-    navigate(`/posts/${post.id}`);
+  const handleSubmit = async (postData: any) => {
+    try {
+      await updatePost(postData);
+      navigate(`/admin/posts/${post.id}`);
+    } catch (error) {
+      console.error('Error updating post:', error);
+    }
   };
   
   return (

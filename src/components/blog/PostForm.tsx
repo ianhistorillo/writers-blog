@@ -1,27 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Post, Category, Tag } from '../../types';
+import { Post, Category, Tag } from '../../types';
 import { useBlog } from '../../context/BlogContext';
 import { useAuth } from '../../context/AuthContext';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
 import Card, { CardContent, CardFooter } from '../ui/Card';
+import MediaSelector from '../ui/MediaSelector';
+import RichTextEditor from '../ui/RichTextEditor';
 
 interface PostFormProps {
   post?: Post;
-  onSubmit: (postData: Omit<Post, 'id'> | Post) => void;
+  onSubmit: (postData: any) => void;
 }
 
 const PostForm: React.FC<PostFormProps> = ({ post, onSubmit }) => {
   const navigate = useNavigate();
   const { categories, tags } = useBlog();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   
   const [title, setTitle] = useState(post?.title || '');
   const [slug, setSlug] = useState(post?.slug || '');
   const [content, setContent] = useState(post?.content || '');
   const [excerpt, setExcerpt] = useState(post?.excerpt || '');
-  const [coverImage, setCoverImage] = useState(post?.coverImage || '');
+  const [coverImage, setCoverImage] = useState(post?.cover_image || '');
   const [status, setStatus] = useState<'draft' | 'published'>(post?.status || 'draft');
   const [featured, setFeatured] = useState(post?.featured || false);
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
@@ -56,7 +58,7 @@ const PostForm: React.FC<PostFormProps> = ({ post, onSubmit }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!validate()) return;
@@ -73,27 +75,42 @@ const PostForm: React.FC<PostFormProps> = ({ post, onSubmit }) => {
     
     const now = new Date().toISOString();
     
-    const postData: Omit<Post, 'id'> = {
+    const basePostData = {
       title,
       slug,
       content,
       excerpt,
-      coverImage,
-      author: user as User,
+      cover_image: coverImage,
       categories: selectedCategoriesObjects,
       tags: selectedTagsObjects,
-      createdAt: post?.createdAt || now,
-      updatedAt: now,
-      publishedAt: status === 'published' ? (post?.publishedAt || now) : undefined,
+      created_at: post?.created_at || now,
+      updated_at: now,
+      published_at: status === 'published' ? (post?.published_at || now) : null,
       status,
       featured,
+      author_id: user?.id || ''
     };
+
+    const postData = post?.id
+      ? { 
+          ...basePostData, 
+          id: post.id,
+          author: {
+            id: user?.id || '',
+            email: user?.email || '',
+            name: profile?.name || 'Anonymous',
+            avatar: profile?.avatar_url
+          } 
+        } // Updating
+      : basePostData; // Creating
     
-    // If editing existing post, include the ID
-    const submissionData = post ? { ...postData, id: post.id } : postData;
-    
-    onSubmit(submissionData);
-    setIsSubmitting(false);
+    try {
+      await onSubmit(postData);
+    } catch (error) {
+      console.error('Error submitting post:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   
   return (
@@ -124,19 +141,13 @@ const PostForm: React.FC<PostFormProps> = ({ post, onSubmit }) => {
               />
               
               <div>
-                <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
                   Content
                 </label>
-                <textarea
-                  id="content"
+                <RichTextEditor
                   value={content}
-                  onChange={(e) => setContent(e.target.value)}
+                  onChange={setContent}
                   placeholder="Write your post content here..."
-                  rows={10}
-                  className={`px-3 py-2 bg-white border shadow-sm border-gray-300 placeholder-gray-400 
-                    focus:outline-none focus:border-blue-800 focus:ring-blue-800 block w-full rounded-md sm:text-sm focus:ring-1
-                    ${errors.content ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}
-                  `}
                 />
                 {errors.content && (
                   <p className="mt-1 text-sm text-red-600">{errors.content}</p>
@@ -163,14 +174,10 @@ const PostForm: React.FC<PostFormProps> = ({ post, onSubmit }) => {
                 )}
               </div>
               
-              <Input
-                label="Cover Image URL"
-                id="coverImage"
+              <MediaSelector
                 value={coverImage}
-                onChange={(e) => setCoverImage(e.target.value)}
-                placeholder="https://example.com/image.jpg"
-                fullWidth
-                helperText="URL to the cover image"
+                onChange={setCoverImage}
+                label="Cover Image"
               />
             </div>
           </CardContent>
