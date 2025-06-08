@@ -19,6 +19,21 @@ const Home: React.FC = () => {
     )
     .slice(0, 6);
 
+  const getDefaultImage = () => {
+    return "https://images.pexels.com/photos/261763/pexels-photo-261763.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&dpr=1";
+  };
+
+  const getCoverImage = (post: any) => {
+    return post.cover_image || getDefaultImage();
+  };
+
+  const getAuthorAvatar = (post: any) => {
+    return (
+      post.author.avatar ||
+      "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150"
+    );
+  };
+
   return (
     <div>
       {/* Hero Section */}
@@ -54,10 +69,19 @@ const Home: React.FC = () => {
               <Link key={post.id} to={`/blog/${post.slug}`} className="group">
                 <div className="relative h-64 mb-4 overflow-hidden rounded-lg">
                   <img
-                    src={post.coverImage}
+                    src={getCoverImage(post)}
                     alt={post.title}
                     className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    onError={(e) => {
+                      console.error("Image load error, using default image");
+                      e.currentTarget.src = getDefaultImage();
+                    }}
                   />
+                  {!post.cover_image && (
+                    <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs">
+                      No Image
+                    </div>
+                  )}
                 </div>
                 <h3 className="text-xl font-serif font-bold text-gray-900 mb-2 group-hover:text-blue-600">
                   {post.title}
@@ -65,9 +89,13 @@ const Home: React.FC = () => {
                 <p className="text-gray-600 mb-2">{post.excerpt}</p>
                 <div className="flex items-center text-sm text-gray-500">
                   <img
-                    src={post.author.avatar}
+                    src={getAuthorAvatar(post)}
                     alt={post.author.name}
-                    className="w-6 h-6 rounded-full mr-2"
+                    className="w-6 h-6 rounded-full mr-2 object-cover"
+                    onError={(e) => {
+                      e.currentTarget.src =
+                        "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150";
+                    }}
                   />
                   <span>{post.author.name}</span>
                   <span className="mx-2">•</span>
@@ -96,12 +124,23 @@ const Home: React.FC = () => {
                 to={`/blog/${post.slug}`}
                 className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
               >
-                {post.coverImage && (
-                  <img
-                    src={post.coverImage}
-                    alt={post.title}
-                    className="w-full h-48 object-cover"
-                  />
+                {getCoverImage(post) && (
+                  <div className="relative">
+                    <img
+                      src={getCoverImage(post)}
+                      alt={post.title}
+                      className="w-full h-48 object-cover"
+                      onError={(e) => {
+                        console.error("Image load error, using default image");
+                        e.currentTarget.src = getDefaultImage();
+                      }}
+                    />
+                    {!post.cover_image && (
+                      <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs">
+                        No Image
+                      </div>
+                    )}
+                  </div>
                 )}
                 <div className="p-6">
                   <h3 className="text-xl font-serif font-bold text-gray-900 mb-2">
@@ -112,9 +151,13 @@ const Home: React.FC = () => {
                   </p>
                   <div className="flex items-center text-sm text-gray-500">
                     <img
-                      src={post.author.avatar}
+                      src={getAuthorAvatar(post)}
                       alt={post.author.name}
-                      className="w-6 h-6 rounded-full mr-2"
+                      className="w-6 h-6 rounded-full mr-2 object-cover"
+                      onError={(e) => {
+                        e.currentTarget.src =
+                          "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150";
+                      }}
                     />
                     <span>{post.author.name}</span>
                     <span className="mx-2">•</span>
