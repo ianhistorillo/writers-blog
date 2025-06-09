@@ -43,9 +43,11 @@ const MediaPage: React.FC<MediaPageProps> = ({
 
     try {
       setError(null);
+      // Only fetch media files uploaded by the current user
       const { data, error } = await supabase
         .from("media_files")
         .select("*")
+        .eq("uploaded_by", user.id) // Filter by current user
         .order("created_at", { ascending: false });
 
       if (error) {
@@ -104,13 +106,13 @@ const MediaPage: React.FC<MediaPageProps> = ({
           );
         }
 
-        // Generate unique filename
+        // Generate unique filename with user ID prefix for isolation
         const fileExt = file.name.split(".").pop();
         const fileName = `${user.id}/${Date.now()}-${Math.random()
           .toString(36)
           .substring(2)}.${fileExt}`;
 
-        // Upload to Supabase Storage
+        // Upload to Supabase Storage in user-specific folder
         const { data: uploadData, error: uploadError } = await supabase.storage
           .from("media")
           .upload(fileName, file, {
@@ -125,14 +127,14 @@ const MediaPage: React.FC<MediaPageProps> = ({
           );
         }
 
-        // Save file metadata to database
+        // Save file metadata to database with user ID
         const { error: dbError } = await supabase.from("media_files").insert({
           filename: fileName,
           original_name: file.name,
           file_path: fileName,
           file_size: file.size,
           mime_type: file.type,
-          uploaded_by: user.id,
+          uploaded_by: user.id, // Associate with current user
         });
 
         if (dbError) {
@@ -166,6 +168,12 @@ const MediaPage: React.FC<MediaPageProps> = ({
   const handleDelete = async (file: MediaFile) => {
     if (!window.confirm("Are you sure you want to delete this file?")) return;
 
+    // Verify user owns this file before deletion
+    if (file.uploaded_by !== user?.id) {
+      setError("You can only delete your own files");
+      return;
+    }
+
     try {
       setError(null);
 
@@ -185,7 +193,8 @@ const MediaPage: React.FC<MediaPageProps> = ({
       const { error: dbError } = await supabase
         .from("media_files")
         .delete()
-        .eq("id", file.id);
+        .eq("id", file.id)
+        .eq("uploaded_by", user.id); // Extra security check
 
       if (dbError) {
         console.error("Database deletion error:", dbError);
@@ -243,7 +252,7 @@ const MediaPage: React.FC<MediaPageProps> = ({
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <span className="ml-2 text-gray-600">Loading media files...</span>
+        <span className="ml-2 text-gray-600">Loading your media files...</span>
       </div>
     );
   }
@@ -252,7 +261,7 @@ const MediaPage: React.FC<MediaPageProps> = ({
     <div className="space-y-6">
       {selectionMode && (
         <div className="flex justify-between items-center">
-          <h2 className="text-xl font-bold text-gray-900">Select Media</h2>
+          <h2 className="text-xl font-bold text-gray-900">Select Your Media</h2>
           <Button variant="ghost" onClick={onClose}>
             <X className="h-4 w-4" />
           </Button>
@@ -261,7 +270,7 @@ const MediaPage: React.FC<MediaPageProps> = ({
 
       {!selectionMode && (
         <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-gray-900">Media Library</h1>
+          <h1 className="text-2xl font-bold text-gray-900">My Media Library</h1>
           <label htmlFor="file-upload">
             <Button variant="primary" as="span" isLoading={isUploading}>
               <Upload className="h-4 w-4 mr-2" />
@@ -305,7 +314,9 @@ const MediaPage: React.FC<MediaPageProps> = ({
             <p className="text-gray-500 mb-2">
               Support for images, documents, and other media files
             </p>
-            <p className="text-sm text-gray-400">Maximum file size: 10MB</p>
+            <p className="text-sm text-gray-400">
+              Maximum file size: 10MB • Files are private to your account
+            </p>
             <label htmlFor="file-upload-drop">
               <Button
                 variant="secondary"
@@ -335,7 +346,7 @@ const MediaPage: React.FC<MediaPageProps> = ({
         <CardHeader>
           <div className="flex justify-between items-center">
             <h2 className="text-lg font-medium">
-              Uploaded Files ({mediaFiles.length})
+              Your Uploaded Files ({mediaFiles.length})
             </h2>
             <div className="flex space-x-2">
               <Button variant="secondary" size="sm">
@@ -442,6 +453,9 @@ const MediaPage: React.FC<MediaPageProps> = ({
             <div className="text-center py-8">
               <Image className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-500 mb-4">No media files uploaded yet</p>
+              <p className="text-sm text-gray-400 mb-4">
+                Upload your first file to get started
+              </p>
               <label htmlFor="file-upload-empty">
                 <Button variant="primary" as="span" disabled={isUploading}>
                   Upload your first file
