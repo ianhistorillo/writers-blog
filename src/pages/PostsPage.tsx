@@ -4,57 +4,59 @@ import { Plus, Filter, Search } from 'lucide-react';
 import { useBlog } from '../context/BlogContext';
 import Button from '../components/ui/Button';
 import PostCard from '../components/blog/PostCard';
+import { useAuth } from '../context/AuthContext';
 
 const PostsPage: React.FC = () => {
   const { posts, categories, tags, updatePost, deletePost } = useBlog();
+  const { user } = useAuth();
   const navigate = useNavigate();
-  
+
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedTag, setSelectedTag] = useState<string>('all');
   const [showFilters, setShowFilters] = useState(false);
-  
-  const handleNewPost = () => {
-    navigate('/admin/posts/new');
-  };
-  
+
+  const handleNewPost = () => navigate('/admin/posts/new');
+
   const handleToggleFeatured = async (post: any) => {
-    await updatePost({
-      ...post,
-      featured: !post.featured
-    });
+    await updatePost({ ...post, featured: !post.featured });
   };
-  
-  const filteredPosts = posts.filter(post => {
-    const matchesSearch = post.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                         post.content.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = selectedStatus === 'all' || post.status === selectedStatus;
-    const matchesCategory = selectedCategory === 'all' || 
-                          post.categories.some(cat => cat.id === selectedCategory);
-    const matchesTag = selectedTag === 'all' || 
-                     post.tags.some(tag => tag.id === selectedTag);
-    
-    return matchesSearch && matchesStatus && matchesCategory && matchesTag;
-  });
-  
-  const sortedPosts = [...filteredPosts].sort((a, b) => 
-    new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+
+  // Filter logic (includes only current user's posts)
+  const filteredPosts = posts
+    .filter(post => post.author_id === user.id)
+    .filter(post => {
+      const matchesSearch =
+        post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        post.content.toLowerCase().includes(searchTerm.toLowerCase());
+
+      const matchesStatus = selectedStatus === 'all' || post.status === selectedStatus;
+      const matchesCategory =
+        selectedCategory === 'all' ||
+        post.categories.some(cat => String(cat.id) === selectedCategory);
+
+      const matchesTag =
+        selectedTag === 'all' ||
+        post.tags.some(tag => String(tag.id) === selectedTag);
+
+      return matchesSearch && matchesStatus && matchesCategory && matchesTag;
+    });
+
+  const sortedPosts = [...filteredPosts].sort(
+    (a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
   );
-  
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h1 className="text-2xl font-bold text-gray-900">Posts</h1>
-        <Button
-          onClick={handleNewPost}
-          variant="primary"
-        >
+        <Button onClick={handleNewPost} variant="primary">
           <Plus className="h-4 w-4 mr-2" />
           New Post
         </Button>
       </div>
-      
+
       <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
         <div className="p-4 border-b border-gray-200">
           <div className="flex flex-col md:flex-row gap-4">
@@ -81,7 +83,7 @@ const PostsPage: React.FC = () => {
               </Button>
             </div>
           </div>
-          
+
           {showFilters && (
             <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
@@ -99,7 +101,7 @@ const PostsPage: React.FC = () => {
                   <option value="draft">Draft</option>
                 </select>
               </div>
-              
+
               <div>
                 <label htmlFor="category-filter" className="block text-sm font-medium text-gray-700 mb-1">
                   Category
@@ -118,7 +120,7 @@ const PostsPage: React.FC = () => {
                   ))}
                 </select>
               </div>
-              
+
               <div>
                 <label htmlFor="tag-filter" className="block text-sm font-medium text-gray-700 mb-1">
                   Tag
@@ -140,14 +142,14 @@ const PostsPage: React.FC = () => {
             </div>
           )}
         </div>
-        
+
         <div className="p-4">
           {sortedPosts.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {sortedPosts.map(post => (
-                <PostCard 
-                  key={post.id} 
-                  post={post} 
+                <PostCard
+                  key={post.id}
+                  post={post}
                   onDelete={deletePost}
                   onToggleFeatured={handleToggleFeatured}
                 />
@@ -156,10 +158,7 @@ const PostsPage: React.FC = () => {
           ) : (
             <div className="py-12 text-center">
               <p className="text-gray-500 mb-4">No posts found</p>
-              <Button
-                onClick={handleNewPost}
-                variant="primary"
-              >
+              <Button onClick={handleNewPost} variant="primary">
                 Create your first post
               </Button>
             </div>

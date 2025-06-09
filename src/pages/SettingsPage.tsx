@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
-import { Save, Globe, Mail, Shield, Bell, Palette } from 'lucide-react';
+import { Save, Globe, Mail, Shield, Bell, Palette, Upload, User } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import Card, { CardContent, CardHeader } from '../components/ui/Card';
+import MediaSelector from '../components/ui/MediaSelector';
 
 const SettingsPage: React.FC = () => {
+  const { profile, updateProfile } = useAuth();
+  
   const [settings, setSettings] = useState({
     siteName: 'Writers\' Haven',
     siteDescription: 'A community of passionate writers sharing their stories and insights.',
@@ -18,7 +22,13 @@ const SettingsPage: React.FC = () => {
     postsPerPage: 10,
   });
 
+  const [profileData, setProfileData] = useState({
+    name: profile?.name || '',
+    avatar_url: profile?.avatar_url || '',
+  });
+
   const [isLoading, setIsLoading] = useState(false);
+  const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
 
   const handleSave = async () => {
     setIsLoading(true);
@@ -28,8 +38,25 @@ const SettingsPage: React.FC = () => {
     alert('Settings saved successfully!');
   };
 
+  const handleProfileUpdate = async () => {
+    setIsUpdatingProfile(true);
+    try {
+      await updateProfile(profileData);
+      alert('Profile updated successfully!');
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      alert('Failed to update profile. Please try again.');
+    } finally {
+      setIsUpdatingProfile(false);
+    }
+  };
+
   const handleInputChange = (key: string, value: string | boolean | number) => {
     setSettings(prev => ({ ...prev, [key]: value }));
+  };
+
+  const handleProfileChange = (key: string, value: string) => {
+    setProfileData(prev => ({ ...prev, [key]: value }));
   };
 
   return (
@@ -41,6 +68,47 @@ const SettingsPage: React.FC = () => {
           Save Changes
         </Button>
       </div>
+
+      {/* Profile Settings */}
+      <Card>
+        <CardHeader>
+          <h2 className="text-lg font-medium flex items-center">
+            <User className="h-5 w-5 mr-2" />
+            Profile Settings
+          </h2>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <Input
+                label="Display Name"
+                value={profileData.name}
+                onChange={(e) => handleProfileChange('name', e.target.value)}
+                fullWidth
+                placeholder="Your display name"
+              />
+              
+              <div className="flex justify-start">
+                <Button 
+                  onClick={handleProfileUpdate} 
+                  variant="secondary" 
+                  isLoading={isUpdatingProfile}
+                >
+                  Update Profile
+                </Button>
+              </div>
+            </div>
+            
+            <div>
+              <MediaSelector
+                value={profileData.avatar_url}
+                onChange={(url) => handleProfileChange('avatar_url', url)}
+                label="Profile Picture"
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* General Settings */}

@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, FileText, Tag, MessageSquare, LineChart, Settings, Users, Image } from 'lucide-react';
+import { Home, FileText, Tag, MessageSquare, LineChart, Settings, Image } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 interface SidebarProps {
@@ -9,6 +9,8 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
   const { profile } = useAuth();
+
+  console.log('profile', profile);
   
   const menuItems = [
     { 
@@ -41,11 +43,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
       icon: <LineChart className="h-5 w-5" />, 
       path: '/admin/analytics' 
     },
-    { 
-      title: 'Users', 
-      icon: <Users className="h-5 w-5" />, 
-      path: '/admin/users' 
-    },
+    // { 
+    //   title: 'Users', 
+    //   icon: <Users className="h-5 w-5" />, 
+    //   path: '/admin/users' 
+    // },
     { 
       title: 'Settings', 
       icon: <Settings className="h-5 w-5" />, 
