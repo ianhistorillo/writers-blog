@@ -44,13 +44,13 @@ const SEOHead: React.FC<SEOHeadProps> = ({
       
       {/* Article specific tags */}
       {type === 'article' && author && (
-        <meta property="article:author\" content={author} />
+        <meta property="article:author" content={author} />
       )}
       {type === 'article' && publishedTime && (
         <meta property="article:published_time" content={publishedTime} />
       )}
       {type === 'article' && modifiedTime && (
-        <meta property="article:modified_time\" content={modifiedTime} />
+        <meta property="article:modified_time" content={modifiedTime} />
       )}
 
       {/* Twitter Card Tags */}
