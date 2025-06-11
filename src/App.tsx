@@ -5,6 +5,7 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
+import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { BlogProvider } from "./context/BlogContext";
 
@@ -47,49 +48,51 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 function App() {
   return (
-    <AuthProvider>
-      <BlogProvider>
-        <Router>
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<PublicLayout />}>
-              <Route index element={<Home />} />
-              <Route path="blog" element={<BlogList />} />
-              <Route path="blog/:slug" element={<BlogPost />} />
-              <Route path="author/:id" element={<AuthorProfile />} />
-              <Route path="about" element={<About />} />
-            </Route>
+    <HelmetProvider>
+      <AuthProvider>
+        <BlogProvider>
+          <Router>
+            <Routes>
+              {/* Public Routes */}
+              <Route path="/" element={<PublicLayout />}>
+                <Route index element={<Home />} />
+                <Route path="blog" element={<BlogList />} />
+                <Route path="blog/:slug" element={<BlogPost />} />
+                <Route path="author/:id" element={<AuthorProfile />} />
+                <Route path="about" element={<About />} />
+              </Route>
 
-            {/* Auth Routes */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+              {/* Auth Routes */}
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
 
-            {/* Admin Routes */}
-            <Route
-              path="/admin"
-              element={
-                <ProtectedRoute>
-                  <AdminLayout />
-                </ProtectedRoute>
-              }
-            >
-              <Route index element={<Dashboard />} />
-              <Route path="posts" element={<PostsPage />} />
-              <Route path="posts/new" element={<CreatePost />} />
-              <Route path="posts/:id" element={<PostDetail />} />
-              <Route path="posts/:id/edit" element={<EditPost />} />
-              <Route path="categories" element={<CategoriesPage />} />
-              <Route path="comments" element={<CommentsPage />} />
-              <Route path="media" element={<MediaPage />} />
-              <Route path="analytics" element={<AnalyticsPage />} />
-              <Route path="users" element={<UsersPage />} />
-              <Route path="settings" element={<SettingsPage />} />
-              <Route path="*" element={<Navigate to="/admin\" replace />} />
-            </Route>
-          </Routes>
-        </Router>
-      </BlogProvider>
-    </AuthProvider>
+              {/* Admin Routes */}
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute>
+                    <AdminLayout />
+                  </ProtectedRoute>
+                }
+              >
+                <Route index element={<Dashboard />} />
+                <Route path="posts" element={<PostsPage />} />
+                <Route path="posts/new" element={<CreatePost />} />
+                <Route path="posts/:id" element={<PostDetail />} />
+                <Route path="posts/:id/edit" element={<EditPost />} />
+                <Route path="categories" element={<CategoriesPage />} />
+                <Route path="comments" element={<CommentsPage />} />
+                <Route path="media" element={<MediaPage />} />
+                <Route path="analytics" element={<AnalyticsPage />} />
+                <Route path="users" element={<UsersPage />} />
+                <Route path="settings" element={<SettingsPage />} />
+                <Route path="*" element={<Navigate to="/admin\" replace />} />
+              </Route>
+            </Routes>
+          </Router>
+        </BlogProvider>
+      </AuthProvider>
+    </HelmetProvider>
   );
 }
 

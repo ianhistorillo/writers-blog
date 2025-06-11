@@ -76,9 +76,23 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
     });
 
+    // Set up session refresh to prevent timeout issues
+    const refreshInterval = setInterval(async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          // Refresh the session to prevent timeout
+          await supabase.auth.refreshSession();
+        }
+      } catch (error) {
+        console.error('Error refreshing session:', error);
+      }
+    }, 30 * 60 * 1000); // Refresh every 30 minutes
+
     return () => {
       mounted = false;
       subscription.unsubscribe();
+      clearInterval(refreshInterval);
     };
   }, []);
 

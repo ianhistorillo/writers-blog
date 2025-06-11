@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useBlog } from "../../context/BlogContext";
 import { formatDistanceToNow } from "date-fns";
+import SEOHead from "../../components/SEO/SEOHead";
 
 const Home: React.FC = () => {
   const { posts } = useBlog();
@@ -20,7 +21,7 @@ const Home: React.FC = () => {
     .slice(0, 6);
 
   const getDefaultImage = () => {
-    return "https://images.pexels.com/photos/261763/pexels-photo-261763.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&dpr=1";
+    return 'https://images.pexels.com/photos/261763/pexels-photo-261763.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&dpr=1';
   };
 
   const getCoverImage = (post: any) => {
@@ -28,14 +29,19 @@ const Home: React.FC = () => {
   };
 
   const getAuthorAvatar = (post: any) => {
-    return (
-      post.author.avatar ||
-      "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150"
-    );
+    return post.author.avatar || 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150';
   };
 
   return (
     <div>
+      <SEOHead 
+        title="Writers' Haven - A Community of Passionate Writers"
+        description="A community-driven platform where writers share their stories, insights, and creative works with readers around the world."
+        image="https://images.pexels.com/photos/261763/pexels-photo-261763.jpeg?auto=compress&cs=tinysrgb&w=1200&h=630&dpr=1"
+        url={window.location.href}
+        type="website"
+      />
+
       {/* Hero Section */}
       <section className="relative bg-gray-900 text-white">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-900 to-purple-900 opacity-90" />
@@ -73,7 +79,7 @@ const Home: React.FC = () => {
                     alt={post.title}
                     className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                     onError={(e) => {
-                      console.error("Image load error, using default image");
+                      console.error('Image load error, using default image');
                       e.currentTarget.src = getDefaultImage();
                     }}
                   />
@@ -93,8 +99,7 @@ const Home: React.FC = () => {
                     alt={post.author.name}
                     className="w-6 h-6 rounded-full mr-2 object-cover"
                     onError={(e) => {
-                      e.currentTarget.src =
-                        "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150";
+                      e.currentTarget.src = 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150';
                     }}
                   />
                   <span>{post.author.name}</span>
@@ -131,7 +136,7 @@ const Home: React.FC = () => {
                       alt={post.title}
                       className="w-full h-48 object-cover"
                       onError={(e) => {
-                        console.error("Image load error, using default image");
+                        console.error('Image load error, using default image');
                         e.currentTarget.src = getDefaultImage();
                       }}
                     />
@@ -155,8 +160,7 @@ const Home: React.FC = () => {
                       alt={post.author.name}
                       className="w-6 h-6 rounded-full mr-2 object-cover"
                       onError={(e) => {
-                        e.currentTarget.src =
-                          "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150";
+                        e.currentTarget.src = 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150';
                       }}
                     />
                     <span>{post.author.name}</span>

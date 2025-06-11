@@ -5,6 +5,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { useBlog } from '../../context/BlogContext';
 import Card, { CardContent } from '../../components/ui/Card';
 import Badge from '../../components/ui/Badge';
+import SEOHead from '../../components/SEO/SEOHead';
 
 const AuthorProfile: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -17,6 +18,10 @@ const AuthorProfile: React.FC = () => {
   if (!author) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-8">
+        <SEOHead 
+          title="Author Not Found"
+          description="The author profile you're looking for doesn't exist."
+        />
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Author Not Found</h1>
           <p className="text-gray-600 mb-6">The author profile you're looking for doesn't exist.</p>
@@ -33,7 +38,7 @@ const AuthorProfile: React.FC = () => {
   }
 
   const getAuthorAvatar = () => {
-    return author.avatar || 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150';
+    return author.avatar || 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&dpr=1';
   };
 
   const getDefaultImage = () => {
@@ -44,8 +49,23 @@ const AuthorProfile: React.FC = () => {
     return post.cover_image || getDefaultImage();
   };
 
+  const getAuthorDescription = () => {
+    return `${author.name} is a passionate writer at Writers' Haven with ${authorPosts.length} published posts. Discover their latest stories, insights, and creative works.`;
+  };
+
+  const currentUrl = `${window.location.origin}/author/${author.id}`;
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
+      <SEOHead 
+        title={`${author.name} - Author Profile`}
+        description={getAuthorDescription()}
+        image={getAuthorAvatar()}
+        url={currentUrl}
+        type="website"
+        author={author.name}
+      />
+
       {/* Back to Blog Link */}
       <Link 
         to="/blog" 

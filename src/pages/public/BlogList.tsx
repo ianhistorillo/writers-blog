@@ -6,6 +6,7 @@ import { useBlog } from '../../context/BlogContext';
 import Card, { CardContent } from '../../components/ui/Card';
 import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
+import SEOHead from '../../components/SEO/SEOHead';
 
 const BlogList: React.FC = () => {
   const { posts, categories, tags } = useBlog();
@@ -46,6 +47,14 @@ const BlogList: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
+      <SEOHead 
+        title="Blog Posts - Writers' Haven"
+        description="Discover stories, insights, and ideas from our community of writers. Browse through our collection of published articles and find your next great read."
+        image="https://images.pexels.com/photos/261763/pexels-photo-261763.jpeg?auto=compress&cs=tinysrgb&w=1200&h=630&dpr=1"
+        url={`${window.location.origin}/blog`}
+        type="website"
+      />
+
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold text-gray-900 mb-4">Blog Posts</h1>
         <p className="text-xl text-gray-600">

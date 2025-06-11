@@ -4,6 +4,7 @@ import { Calendar, User, Tag, ArrowLeft } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { useBlog } from '../../context/BlogContext';
 import Badge from '../../components/ui/Badge';
+import SEOHead from '../../components/SEO/SEOHead';
 
 const BlogPost: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -14,6 +15,10 @@ const BlogPost: React.FC = () => {
   if (!post) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-8">
+        <SEOHead 
+          title="Post Not Found"
+          description="The blog post you're looking for doesn't exist or has been removed."
+        />
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Post Not Found</h1>
           <p className="text-gray-600 mb-6">The blog post you're looking for doesn't exist or has been removed.</p>
@@ -30,7 +35,7 @@ const BlogPost: React.FC = () => {
   }
 
   const getDefaultImage = () => {
-    return 'https://images.pexels.com/photos/261763/pexels-photo-261763.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&dpr=1';
+    return 'https://images.pexels.com/photos/261763/pexels-photo-261763.jpeg?auto=compress&cs=tinysrgb&w=1200&h=630&dpr=1';
   };
 
   const getCoverImage = () => {
@@ -41,8 +46,28 @@ const BlogPost: React.FC = () => {
     return post.author.avatar || 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150';
   };
 
+  // Extract first 15 words from content for description
+  const getMetaDescription = () => {
+    const textContent = post.content.replace(/<[^>]*>/g, ''); // Strip HTML tags
+    const words = textContent.split(/\s+/).slice(0, 15).join(' ');
+    return words + (textContent.split(/\s+/).length > 15 ? '...' : '');
+  };
+
+  const currentUrl = `${window.location.origin}/blog/${post.slug}`;
+
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
+      <SEOHead 
+        title={post.title}
+        description={getMetaDescription()}
+        image={getCoverImage()}
+        url={currentUrl}
+        type="article"
+        author={post.author.name}
+        publishedTime={post.published_at || undefined}
+        modifiedTime={post.updated_at}
+      />
+
       {/* Back to Blog Link */}
       <Link 
         to="/blog" 
