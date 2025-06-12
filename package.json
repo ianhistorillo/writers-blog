@@ -7,7 +7,6 @@
     "generate:routes": "node src/scripts/generateSnapRoutes.js",
     "dev": "vite",
     "build": "npm run generate:routes && vite build",
-    "postbuild": "react-snap",
     "lint": "eslint .",
     "preview": "vite preview"
   },
