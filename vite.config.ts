@@ -1,22 +1,28 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import ViteSSG from 'vite-plugin-ssr-ssg';
-import fs from 'node:fs';
 
-// Load the generated routes
-const prerenderRoutes = fs.existsSync('./prerender-routes.json')
-  ? JSON.parse(fs.readFileSync('./prerender-routes.json', 'utf-8'))
-  : [];
+export default defineConfig(async () => {
+  // Dynamically import the plugin to avoid the ESM import crash]
 
-export default defineConfig({
-  plugins: [
-    react(),
-    ViteSSG({
-      entry: 'src/main.tsx',
-      routes: ['/', ...prerenderRoutes],
-    }),
-  ],
-  optimizeDeps: {
-    exclude: ['lucide-react'],
-  },
+  return {
+    plugins: [
+      react(),
+    ],
+    // your existing config
+    build: {
+      outDir: 'build',  // change output folder from dist to build
+      target: 'es2015', // 👈 fallback target for wider compatibility
+      rollupOptions: {
+        input: 'index.html'
+      }
+    },
+    server: {
+      fs: {
+        allow: ['.']
+      }
+    },
+    optimizeDeps: {
+      exclude: ['lucide-react'],
+    },
+  };
 });
