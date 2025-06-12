@@ -1,6 +1,6 @@
 import React from "react";
 import {
-  BrowserRouter as Router,
+  HashRouter,
   Routes,
   Route,
   Navigate,
@@ -51,12 +51,13 @@ function App() {
     <HelmetProvider>
       <AuthProvider>
         <BlogProvider>
-          <Router>
+          <HashRouter>
             <Routes>
               {/* Public Routes */}
               <Route path="/" element={<PublicLayout />}>
                 <Route index element={<Home />} />
                 <Route path="blog" element={<BlogList />} />
+                <Route path="blog/test-post" element={<h1>Static test blog post</h1>} />
                 <Route path="blog/:slug" element={<BlogPost />} />
                 <Route path="author/:id" element={<AuthorProfile />} />
                 <Route path="about" element={<About />} />
@@ -89,7 +90,7 @@ function App() {
                 <Route path="*" element={<Navigate to="/admin\" replace />} />
               </Route>
             </Routes>
-          </Router>
+          </HashRouter>
         </BlogProvider>
       </AuthProvider>
     </HelmetProvider>

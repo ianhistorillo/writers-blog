@@ -11,10 +11,7 @@ export default defineConfig(async () => {
     // your existing config
     build: {
       outDir: 'dist',  // change output folder from dist to build
-      target: 'es2015', // 👈 fallback target for wider compatibility
-      rollupOptions: {
-        input: 'index.html'
-      }
+      target: 'es2015' // 👈 fallback target for wider compatibility
     },
     server: {
       fs: {
